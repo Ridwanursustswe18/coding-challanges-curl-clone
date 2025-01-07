@@ -1,15 +1,20 @@
 const net = require('net');
-args = process.argv.slice(2);
-
+const urlIndex = process.argv.length - 1;
+const args = process.argv;
 function sendGetRequest(url) {
     const { protocol, hostname, port, pathname } = new URL(url);
     const portNumber = port || (protocol === 'http:' ? 80 : 443);
     const client = new net.Socket();
+    let response = '';
     client.connect(portNumber, hostname, () => {
-        console.log(`Sending request GET ${pathname} HTTP/1.1`);
-        console.log(`Host: ${hostname}`);
-        console.log("Accept: */*");
-        console.log("Connection: close");
+        if(args[2] === '-v'){
+            //console.log(`Sending request GET ${pathname} HTTP/1.1`);
+            console.log(`> GET ${pathname} HTTP/1.1`)
+            console.log(`> Host: ${hostname}`);
+            console.log("> Accept: */*");
+            console.log(">");
+            //console.log("Connection: close");
+        }
         client.write(`GET ${pathname} HTTP/1.1\r\n`);
         client.write(`Host: ${hostname}\r\n`);
         client.write('Connection: close\r\n');
@@ -17,12 +22,20 @@ function sendGetRequest(url) {
     });
 
     client.on('data', (data) => {
-        console.log(data.toString());
-        client.end();
+        response += data.toString();
     });
 
-    client.on('close', () => {
-       
+    client.on('end', () => {
+        const [headerPart,bodyPart] = response.split('\r\n\r\n');
+        const headers = headerPart.split('\r\n');
+        modifiedHeaders = headers.map(header => `< ${header}`);
+        if(args[2] == "-v"){
+            modifiedHeaders.forEach(header => {
+            console.log(header);
+        });
+            console.log('<');   
+        }
+        console.log(bodyPart);   
     });
 
     client.on('error', (err) => {
@@ -30,7 +43,7 @@ function sendGetRequest(url) {
     });
 
 }
-const extractedUrl = args[0];
+const extractedUrl = args[urlIndex];
 sendGetRequest(extractedUrl);
 
 // function extractURL(url){
