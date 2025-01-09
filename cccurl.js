@@ -1,12 +1,8 @@
 const net = require('net');
 const args = process.argv;
-method = args[2] === '-X' ? args[3] : 'GET';
-let data = '';
-let specificHeader = '';
-if(method === 'POST'){
-    data = args[6]; 
-    specificHeader = args[args.length-1];
-}
+const method = args[2] === '-X' ? args[3] : 'GET';
+const data = args[5] === '-d'?args[6]:'';
+const specificHeader = args[7] === '-H'?args[8]:'';
 const urlIndex = args[2] === '-X'?4:process.argv.length-1;
 function sendRequest(url) {
     const { protocol, hostname, port, pathname } = new URL(url);
