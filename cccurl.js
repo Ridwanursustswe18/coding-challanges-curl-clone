@@ -1,23 +1,37 @@
 const net = require('net');
-const urlIndex = process.argv.length - 1;
 const args = process.argv;
-
+method = args[2] === '-X' ? args[3] : 'GET';
+let data = '';
+let specificHeader = '';
+if(method === 'POST'){
+    data = args[6]; 
+    specificHeader = args[args.length-1];
+}
+const urlIndex = args[2] === '-X'?4:process.argv.length-1;
 function sendRequest(url) {
     const { protocol, hostname, port, pathname } = new URL(url);
     const portNumber = port || (protocol === 'http:' ? 80 : 443);
     const client = new net.Socket();
     let response = '';
-    
     client.connect(portNumber, hostname, () => {
-        const method = args[2] === '-X' ? args[3] : 'GET';
-        const request = [
+        const requestParts = [
             `${method} ${pathname} HTTP/1.1`,
             `Host: ${hostname}`,
-            'Accept: */*',
-            'Connection: close',
-            '',
-            '' 
-        ].join('\r\n');
+            'Accept: */*'
+        ];
+
+        if (method === 'POST' && data) {
+            requestParts.push(specificHeader);
+            requestParts.push(`Content-Length: ${Buffer.byteLength(data)}`);
+        }
+        requestParts.push('Connection: close');
+        requestParts.push('');
+        if (method === 'POST' && data) {
+            requestParts.push(data);
+        }
+        // Add final empty line for http protocol
+        requestParts.push('');
+        const request = requestParts.join('\r\n');
         client.write(request);
     });
 
@@ -63,6 +77,6 @@ try {
 //     console.log(`Host: ${host}`);
 //     console.log("Accept: */*")
 // }
-// // extractURL(url);
+// extractURL(url);
 
 
