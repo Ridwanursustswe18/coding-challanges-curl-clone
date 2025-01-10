@@ -15,7 +15,7 @@ function sendRequest(url) {
             `Host: ${hostname}`,
             'Accept: */*'
         ];
-        methodList = ['POST','PUT'];
+        methodList = ['POST','PUT','PATCH'];
         if (methodList.includes(method) && data) {
             requestParts.push(specificHeader);
             requestParts.push(`Content-Length: ${Buffer.byteLength(data)}`);
