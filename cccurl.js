@@ -15,14 +15,14 @@ function sendRequest(url) {
             `Host: ${hostname}`,
             'Accept: */*'
         ];
-
-        if (method === 'POST' && data) {
+        methodList = ['POST','PUT'];
+        if (methodList.includes(method) && data) {
             requestParts.push(specificHeader);
             requestParts.push(`Content-Length: ${Buffer.byteLength(data)}`);
         }
         requestParts.push('Connection: close');
         requestParts.push('');
-        if (method === 'POST' && data) {
+        if (methodList.includes(method) && data) {
             requestParts.push(data);
         }
         // Add final empty line for http protocol
